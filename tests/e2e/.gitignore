@@ -1,0 +1,49 @@
+# 测试运行时现场生成的东西 —— 都不入库。
+# 站点副本由 verify.py 的 build_site() 从 dist/ 复制出来，截图/日志是运行产物。
+
+__pycache__/
+*.pyc
+
+# 站点副本（每套自己那份 dist 拷贝，名字各套不同）
+*/site/
+*/realsite/
+*/site_test/
+*/app/
+*/app-*/
+*/p1/
+*/p2/
+*/fixed/
+*/real/
+*/plain/
+*/worst/
+*/normal/
+*/hover/
+*/library/
+*/reader/
+*/reader_side/
+*/lib_fav/
+*/tabs/
+*/tabs_shot/
+*/A_nostretch/
+*/B_nostretch_width/
+*/chrome-profile/
+*/drag/
+public/
+
+# 运行产物
+*.png
+*.pdf
+*.log
+*.out
+*.err
+*.sha
+dom.html
+*.dom.html
+*_dom.html
+
+# 套件跑完留下的「应用页面快照」/对比页 —— 都是同目录 .py 生成出来的，别入库。
+# （e2e7 的 plain.html/worst.html 是抓下来的页面；e2e16 的 compare.html 由
+#  make_compare.py 写；e2e/ 那份更早的整目录 dist 快照已经删掉了。）
+*/compare.html
+*/plain.html
+*/worst.html

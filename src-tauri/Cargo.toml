@@ -1,0 +1,81 @@
+[package]
+name = "folia"
+version = "0.1.0"
+description = "Folia - 专注阅读、检索与批注的 PDF 阅读器"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "folia_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+# ⚠️ 这条不是给构建脚本用的，是**编译期 workaround**，别删（说明见 [dependencies] 的长注释）。
+indexmap = { version = "1.9", features = ["std"] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+# 单实例：Windows 上双击第二份 PDF 时系统会再起一个进程，
+# 由它把 argv 转给已经在跑的那个实例（见 lib.rs 的 `run`）。
+tauri-plugin-single-instance = "2"
+tokio = { version = "1", features = ["sync"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# `trash` 在 Windows 上走 IFileOperation，把文件放进回收站。
+#
+# ⚠️ `default-features = false` 会连 `coinit_apartmentthreaded` 一起关掉，而 trash
+# 在 Windows 上**故意**让这种情况编不过（trash-5.2.9/src/windows.rs:323 那句
+# `0 = "THIS IS AN ERROR ON PURPOSE..."`）—— 它必须先确定调用线程的 COM 初始化模式。
+# 所以这里显式挑一个，二选一、不能都不选：
+#   - `coinit_apartmentthreaded`（= crate 自己的默认值）→ `COINIT_APARTMENTTHREADED`
+#   - `coinit_multithreaded` → `COINIT_MULTITHREADED`
+# 选 **apartmentthreaded**：Tauri 的窗口线程本来就是 STA（wry 建 webview 时
+# 已经 CoInitializeEx 成 APARTMENTTHREADED），trash 内部再调一次同模式的
+# CoInitializeEx 是安全的；反过来选 multithreaded 会撞上 RPC_E_CHANGED_MODE，
+# 而 trash 对 `hr.is_err()` 是直接 `panic!`（见同文件 342-345 行）。
+# `default-features = false` 关掉的只有 `chrono`（我们不用它算删除时间）。
+trash = { version = "5.2.9", default-features = false, features = ["coinit_apartmentthreaded"] }
+
+# ⚠️ 这两条 `indexmap` 不是给业务代码用的，是**编译期 workaround**，别删。
+#
+# 链条：`tauri-utils` 打开了 `schemars 0.8` 的 `preserve_order` 特性
+# → schemars 的 `Map<K, V>` 被定义成 `indexmap::IndexMap<K, V>`（只给两个参数）
+# → 而 `indexmap 1.9.3` 的 `IndexMap` 有没有第三个参数（hash builder）的默认值，
+#    取决于它的 `has_std` cfg（indexmap-1.9.3/src/map.rs 的 `#[cfg(has_std)]`）。
+#
+# 这个 cfg 由 indexmap 的 build.rs 决定：**开了 `std` 特性就直接 emit**，
+# 没开就用 autocfg **探测** sysroot。麻烦在于 indexmap 1.9.3 的 Cargo.toml 里
+# **没有 `default` 特性**，`std` 默认是关的 —— 只能走探测那条路，而本机上那个
+# 探测静默失败（build.rs 只输出 `rustc-check-cfg`，没有 `rustc-cfg=has_std`），
+# 于是 `IndexMap<K, V>` 变成"缺一个泛型参数"：
+#
+#   error[E0107]: struct takes 3 generic arguments but 2 generic arguments were supplied
+#     --> schemars-0.8.22/src/lib.rs:12:32
+#
+# 所以显式把 `std` 打开。**两处都要写，缺一不可**：
+# - `[dependencies]` 管**目标单元**（schemars 被 tauri-utils 当普通依赖用）；
+# - `[build-dependencies]` 管**宿主单元**（schemars 还被 tauri-build 当构建依赖用）。
+#   cargo 的 host / target 特性是分开解析的，只写一处，另一处照样缺 `std`。
+#
+# 试过但**没用**的路子，别再试：
+# - 用 `--cfg has_std` 走 rustflags：`[build]` / `[target.<host>]` / `RUSTFLAGS` 环境变量
+#   三种写法都**传不进宿主单元**（宿主 schemars 照样编不过）；
+# - 把 indexmap 降到 1.8.2：同一个 `has_std` 门控，没用。
+indexmap = { version = "1.9", features = ["std"] }
+
+[target.'cfg(windows)'.dependencies]
+# 默认打开方式的读写（HKCU\Software\Classes 下的 ProgId 与 UserChoice）。
+winreg = "0.56"
+
+
+# 注意：[profile.release] 已移到 workspace 根（仓库根 Cargo.toml）。
+# 写在这里会被 cargo 忽略（"profiles for the non root package will be ignored"）。
+# 参考：https://tauri.app/concept/size/#cargo-configuration

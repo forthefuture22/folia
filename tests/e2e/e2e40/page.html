@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- e2e40 的测试页：把 `page_view.rs` 输出的那套 DOM 结构（`.page` 里
+     canvas + 图片层 + 文本层）照搬过来，然后让**真的** bridge.js 去渲染。
+     用 `?theme=light` 切初始主题，其余逻辑都在 harness.js 里。 -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #101013;
+      }
+      /* 下面这几条是从 styles.css 里搬过来的最小集合 —— 判据要量的就是
+         `.page-canvas` 上的那个反相滤镜，和图片层躲开它的方式。 */
+      .page {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .page-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .page-image-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .page-image-layer canvas {
+        position: absolute;
+        display: block;
+      }
+      html.theme-dark .page-canvas {
+        filter: invert(1) hue-rotate(180deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <canvas id="folia-canvas-1" class="page-canvas"></canvas>
+      <div class="page-image-layer"></div>
+    </div>
+    <script type="module" src="./harness.js"></script>
+  </body>
+</html>

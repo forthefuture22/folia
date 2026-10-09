@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Folia</title>
+    <link data-trunk rel="css" href="styles.css" />
+    <!-- 深色模式：在样式表之后、应用之前**同步**挂上 `theme-dark` 类。
+         放在这里而不是等 wasm 起来再切，是为了不闪一下白 —— 同步脚本会挡住首屏渲染。
+         主题只认这一个类（见 styles.css 的「深色 tokens」），
+         所以系统偏好和以后可能加的手动开关走的是同一份颜色定义，不会各漂各的。 -->
+    <script>
+      (function () {
+        try {
+          var mq = window.matchMedia("(prefers-color-scheme: dark)");
+          var apply = function (dark) {
+            document.documentElement.classList.toggle("theme-dark", !!dark);
+            // 主题一变，**按主题烘焙**的缩略图就过期了（深色那张是把整页反相、
+            // 再把图片按原色贴回去合成出来的，见 bridge.js 的 composeDarkThumbnail）。
+            // 这里只负责**广播**；作废与重烘由 Rust 侧接（app.rs 里那个 folia-theme 监听）。
+            // ⚠️ 别改成在这里直接清缓存 —— 主题的入口只有这一个类，
+            // 而"谁按主题烘了东西"是应用侧才知道的事。
+            try {
+              window.dispatchEvent(new Event("folia-theme"));
+            } catch (_) {}
+          };
+          apply(mq.matches);
+          if (mq.addEventListener) {
+            mq.addEventListener("change", function (e) {
+              apply(e.matches);
+            });
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link data-trunk rel="copy-dir" href="public" />
+    <script type="module" src="public/pdfjs/bridge.js"></script>
+  </head>
+  <body></body>
+</html>

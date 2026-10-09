@@ -1,0 +1,21 @@
+<!doctype html><meta charset=utf-8><body>
+<textarea id=t style="position:fixed;top:-1000px">HELLO</textarea>
+<pre id=out></pre>
+<script>
+const a=document.getElementById('t');
+a.select();
+let r1=null,e1=null;
+try{ r1=document.execCommand('copy'); }catch(e){ e1=String(e); }
+const ta=document.createElement('textarea');
+ta.value='SECOND'; ta.style.position='fixed'; ta.style.top='-1000px';
+document.body.appendChild(ta); ta.select();
+let r2=null,e2=null;
+try{ r2=document.execCommand('copy'); }catch(e){ e2=String(e); }
+ta.remove();
+document.getElementById('out').textContent=JSON.stringify({
+  hasFocus:document.hasFocus(), execType:typeof document.execCommand,
+  first:r1, firstErr:e1, second:r2, secondErr:e2,
+  activeTag:document.activeElement&&document.activeElement.tagName,
+  selectionText:String(window.getSelection())
+});
+</script></body>

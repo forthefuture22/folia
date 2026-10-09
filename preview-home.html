@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Folia 首页设计预览</title>
+<style>
+:root {
+  --bg: #f4f4f2;
+  --surface: #ffffff;
+  --surface-2: #fafaf8;
+  --border: #e2e0da;
+  --text: #26251f;
+  --text-muted: #7a786f;
+  --accent: #2f6f4f;
+  --accent-soft: #e4efe8;
+  --danger: #b3402f;
+  --radius: 8px;
+  --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  font-family: var(--font); color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.body { display: flex; flex: 1; min-height: 0; }
+
+.topbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--surface);
+  border-bottom: 1px solid var(--border); z-index: 10;
+}
+.topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-center { display: flex; align-items: center; gap: 6px; flex: 1 1 280px; justify-content: center; }
+.topbar-right { margin-left: auto; }
+.doc-name {
+  font-size: 13px; color: var(--text-muted); max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.btn {
+  font-family: inherit; font-size: 13px; line-height: 1; padding: 7px 12px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+.btn.tiny { font-size: 12px; padding: 5px 8px; }
+.search-input {
+  font-family: inherit; font-size: 13px; padding: 7px 10px; width: 220px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); outline: none;
+}
+.search-count { font-size: 12px; color: var(--text-muted); min-width: 46px; text-align: center; }
+.zoom, .pager, .swatches { display: flex; align-items: center; gap: 4px; }
+.zoom-label { font-size: 12px; color: var(--text-muted); min-width: 42px; text-align: center; }
+.page-input {
+  font-family: inherit; font-size: 13px; width: 48px; text-align: center; padding: 6px 4px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); outline: none;
+}
+.page-total { font-size: 12px; color: var(--text-muted); }
+.swatch { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,.14); padding: 0; }
+.swatch.s1 { background: #ffd95c; } .swatch.s2 { background: #7fd08f; }
+.swatch.s3 { background: #7fb2ff; } .swatch.s4 { background: #ff8fc4; }
+.btn.highlight { background: var(--accent-soft); border-color: #bcd8c7; color: #234f39; font-weight: 500; }
+.btn:disabled { opacity: .42; cursor: default; }
+
+.stage { flex: 1; min-width: 0; overflow: auto; background: var(--bg); position: relative; }
+
+/* ---------------------------------------------------------------- 首页 / 书架 */
+
+.stage.home-mode {
+  background: radial-gradient(1200px 460px at 50% -160px, #ffffff 0%, rgba(255,255,255,0) 70%), var(--bg);
+}
+.home { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+.muted { color: var(--text-muted); }
+
+/* ---- 继续阅读 */
+.resume {
+  display: flex; align-items: center; gap: 16px; width: 100%;
+  margin-bottom: 34px; padding: 15px 18px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  font-family: inherit; color: inherit; text-align: left; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px rgba(0,0,0,.05);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.resume:hover {
+  transform: translateY(-2px); border-color: #cfccc3;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06), 0 16px 34px rgba(0,0,0,.09);
+}
+.cover-art.resume-art { width: 58px; flex: 0 0 auto; padding: 8px 7px 7px 11px; border-radius: 2px 5px 5px 2px; }
+.resume-art .cover-title { font-size: 9px; line-height: 1.35; -webkit-line-clamp: 3; }
+.resume-art .cover-badge { font-size: 6.5px; letter-spacing: .1em; }
+.resume-art .cover-spine { width: 5px; }
+.resume-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; flex: 1 1 auto; }
+.resume-eyebrow { font-size: 10.5px; font-weight: 600; letter-spacing: .1em; color: var(--accent); }
+.resume-title {
+  display: block; font-size: 15px; font-weight: 500; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.resume-sub { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.resume-track {
+  display: block; height: 4px; margin-top: 3px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-2); overflow: hidden;
+}
+.resume-fill { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
+.resume-go { flex: 0 0 auto; font-size: 16px; color: var(--text-muted); transition: transform .16s ease, color .16s ease; }
+.resume:hover .resume-go { transform: translateX(3px); color: var(--accent); }
+
+/* ---- 空书架 */
+.home-empty { padding: 24px 0 0; }
+.drop-zone {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; width: 100%; min-height: 190px; padding: 32px;
+  border: 1.5px dashed #cfccc3; border-radius: 14px; background: var(--surface);
+  font-family: inherit; color: inherit; cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+.drop-zone:hover { border-color: #9dc2ac; background: var(--accent-soft); transform: translateY(-2px); }
+.drop-plus {
+  display: flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface-2);
+  font-size: 22px; line-height: 1; color: var(--text-muted);
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+.drop-zone:hover .drop-plus { background: var(--surface); border-color: #9dc2ac; color: var(--accent); }
+.drop-label { font-size: 13.5px; color: var(--text-muted); }
+
+/* ---- 书架 */
+.shelf-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.shelf-head h2 { font-size: 14px; font-weight: 600; letter-spacing: .01em; color: var(--text); margin: 0; }
+.shelf-count {
+  font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
+}
+.shelf-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, 148px);
+  gap: 28px 18px; justify-content: center;
+}
+.cover { position: relative; min-width: 0; }
+.cover-btn, .cover-add {
+  display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0;
+  border: none; background: transparent; font-family: inherit; color: inherit;
+  cursor: pointer; text-align: left;
+}
+.cover-art {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between;
+  width: 100%; aspect-ratio: 3 / 4; padding: 16px 13px 12px 19px;
+  border-radius: 3px 7px 7px 3px; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 1px 2px rgba(0,0,0,.10), 0 5px 14px rgba(0,0,0,.07);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.cover-btn:hover .cover-art {
+  transform: translateY(-4px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 4px rgba(0,0,0,.12), 0 12px 26px rgba(0,0,0,.14);
+}
+.cover-spine {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 7px; z-index: 2;
+  background: rgba(0,0,0,.13); box-shadow: inset -1px 0 0 rgba(255,255,255,.4);
+}
+/* 封面装饰：绝对定位的 ::before，否则会成为 flex 子项 */
+.cover-art::before { content: ""; position: absolute; z-index: 0; pointer-events: none; }
+.deco-plain::before { display: none; }
+.deco-rule::before { left: 19px; right: 13px; bottom: 33px; height: 1px; background: rgba(0,0,0,.14); }
+.deco-orb::before { right: -26px; bottom: -26px; width: 88px; height: 88px; border-radius: 50%; background: rgba(255,255,255,.42); }
+.deco-band::before {
+  top: -28px; right: -46px; width: 124px; height: 52px;
+  transform: rotate(-34deg); background: rgba(255,255,255,.38);
+}
+.cover-title {
+  position: relative; z-index: 1;
+  font-size: 12.5px; line-height: 1.4; font-weight: 500; color: #2c2b26;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; text-overflow: ellipsis; word-break: break-word;
+  min-height: 0;
+}
+.cover-badge { position: relative; z-index: 1; font-size: 9.5px; letter-spacing: .12em; color: rgba(0,0,0,.36); }
+.cover-progress {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 3;
+  background: rgba(0,0,0,.10);
+}
+.cover-progress-fill { display: block; height: 100%; background: rgba(0,0,0,.36); }
+.name-wrap { position: relative; display: block; width: 100%; min-width: 0; }
+.cover-tip {
+  position: absolute; bottom: calc(100% + 7px); left: 50%; z-index: 5;
+  width: max-content; max-width: 186px; padding: 6px 9px;
+  border-radius: 6px; border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); font-size: 11.5px; line-height: 1.5; text-align: center;
+  word-break: break-word; box-shadow: 0 6px 18px rgba(0,0,0,.14);
+  opacity: 0; transform: translateX(-50%) translateY(4px);
+  transition: opacity .14s ease, transform .14s ease; pointer-events: none;
+}
+.name-wrap:hover .cover-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.cover-meta { display: flex; flex-direction: column; gap: 2px; width: 100%; min-width: 0; padding: 0 2px; }
+.cover-name { display: block; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover-sub { display: block; font-size: 10.5px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover-remove {
+  position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1; cursor: pointer;
+  opacity: 0; transition: opacity .12s ease;
+}
+.cover:hover .cover-remove { opacity: 1; }
+.cover-remove:hover { color: var(--danger); border-color: #dcb8b1; }
+.cover-add .cover-art {
+  align-items: center; justify-content: center; gap: 9px; padding: 0;
+  background: var(--surface); border: 1px dashed #cfccc3; box-shadow: none;
+}
+.cover-add .cover-art::before { display: none; }
+.cover-add:hover .cover-art {
+  border-color: #9dc2ac; background: var(--accent-soft);
+  transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,.07);
+}
+.cover-plus {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface-2);
+  font-size: 17px; line-height: 1; color: var(--text-muted);
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+.cover-add:hover .cover-plus { background: var(--surface); border-color: #9dc2ac; color: var(--accent); }
+.cover-add-label { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="body">
+    <main class="stage home-mode">
+      <div class="home">
+
+        <button class="resume">
+          <span class="cover-art resume-art deco-orb" style="background:linear-gradient(158deg,hsl(18 52% 94%),hsl(18 38% 82%) 62%,hsl(18 33% 76%));">
+            <span class="cover-spine"></span>
+            <span class="cover-title">深度学习</span>
+            <span class="cover-badge">PDF</span>
+          </span>
+          <span class="resume-body">
+            <span class="resume-eyebrow">继续阅读</span>
+            <span class="resume-title">深度学习.pdf</span>
+            <span class="resume-sub">第 42 页 / 共 320 页 · 已读 13%</span>
+            <span class="resume-track"><span class="resume-fill" style="width:13%"></span></span>
+          </span>
+          <span class="resume-go">→</span>
+        </button>
+
+        <section class="shelf">
+          <div class="shelf-head">
+            <h2>最近打开</h2>
+            <span class="shelf-count">8 本</span>
+          </div>
+          <div class="shelf-grid">
+            <button class="cover cover-add">
+              <span class="cover-art">
+                <span class="cover-plus">+</span>
+                <span class="cover-add-label">打开新文件</span>
+              </span>
+            </button>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-orb" style="background:linear-gradient(158deg,hsl(18 52% 94%),hsl(18 38% 82%) 62%,hsl(18 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">深度学习</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:13%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">深度学习.pdf</span>
+                    <span class="cover-tip">深度学习</span>
+                  </span>
+                  <span class="cover-sub">12.4 MB · 320 页 · 今天</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-rule" style="background:linear-gradient(158deg,hsl(42 52% 94%),hsl(42 38% 82%) 62%,hsl(42 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">Rust 程序设计语言（第 2 版）</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:62%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">Rust 程序设计语言（第 2 版）.pdf</span>
+                    <span class="cover-tip">Rust 程序设计语言（第 2 版）</span>
+                  </span>
+                  <span class="cover-sub">6.1 MB · 552 页 · 昨天</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-band" style="background:linear-gradient(158deg,hsl(88 52% 94%),hsl(88 38% 82%) 62%,hsl(88 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">2026 年度财务报告</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:100%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">2026 年度财务报告.pdf</span>
+                    <span class="cover-tip">2026 年度财务报告</span>
+                  </span>
+                  <span class="cover-sub">2.8 MB · 48 页 · 3 天前</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-plain" style="background:linear-gradient(158deg,hsl(145 52% 94%),hsl(145 38% 82%) 62%,hsl(145 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">论法的精神</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:4%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">论法的精神.pdf</span>
+                    <span class="cover-tip">论法的精神</span>
+                  </span>
+                  <span class="cover-sub">9.7 MB · 412 页 · 5 天前</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-orb" style="background:linear-gradient(158deg,hsl(196 52% 94%),hsl(196 38% 82%) 62%,hsl(196 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">Attention Is All You Need</span>
+                  <span class="cover-badge">PDF</span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">Attention Is All You Need.pdf</span>
+                    <span class="cover-tip">Attention Is All You Need</span>
+                  </span>
+                  <span class="cover-sub">1.2 MB · 15 页 · 昨天</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-rule" style="background:linear-gradient(158deg,hsl(232 52% 94%),hsl(232 38% 82%) 62%,hsl(232 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">用户研究方法手册</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:28%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">用户研究方法手册.pdf</span>
+                    <span class="cover-tip">用户研究方法手册</span>
+                  </span>
+                  <span class="cover-sub">18.3 MB · 236 页 · 12 天前</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-band" style="background:linear-gradient(158deg,hsl(268 52% 94%),hsl(268 38% 82%) 62%,hsl(268 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">国富论</span>
+                  <span class="cover-badge">PDF</span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">国富论.pdf</span>
+                    <span class="cover-tip">国富论</span>
+                  </span>
+                  <span class="cover-sub">14.9 MB · 680 页 · 3 个月前</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+
+            <div class="cover">
+              <button class="cover-btn">
+                <span class="cover-art deco-plain" style="background:linear-gradient(158deg,hsl(316 52% 94%),hsl(316 38% 82%) 62%,hsl(316 33% 76%));">
+                  <span class="cover-spine"></span>
+                  <span class="cover-title">城市与狗</span>
+                  <span class="cover-badge">PDF</span>
+                  <span class="cover-progress"><span class="cover-progress-fill" style="width:7%"></span></span>
+                </span>
+                <span class="cover-meta">
+                  <span class="name-wrap">
+                    <span class="cover-name">城市与狗.pdf</span>
+                    <span class="cover-tip">城市与狗</span>
+                  </span>
+                  <span class="cover-sub">3.5 MB · 208 页 · 1 个月前</span>
+                </span>
+              </button>
+              <button class="cover-remove">×</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
